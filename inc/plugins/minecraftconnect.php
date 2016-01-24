@@ -25,14 +25,6 @@ function minecraftconnect_info()
     );
 }
 
-function minecraftconnect_is_installed()
-{
-    global $db;
-
-    $q = $db->simple_select('settings', 'name', 'name=\'mcc_enabled\'');
-    return $db->num_rows($q) >= 1;
-}
-
 function minecraftconnect_install()
 {
     global $db, $mybb;
@@ -44,7 +36,7 @@ function minecraftconnect_install()
         'disporder' => '1',
         'isdefault' => 'no',
         );
-    $db->insert_query("settinggroups", $mcc_group);
+    $db->insert_query('settinggroups', $mcc_group);
     $gid = intval($db->insert_id());
     
     $psettings[] = array(
@@ -56,7 +48,25 @@ function minecraftconnect_install()
         'disporder' => '1',
         'gid' => $gid
         );
+
+    foreach($psettings as $setting)
+    {
+        $db->insert_query('settings', $setting);
+    }
+
+    rebuild_settings();
 }
+
+function minecraftconnect_is_installed()
+{
+    global $mybb;
+
+    if(isset($mybb->settings['mcc_enabled']))
+        return true;
+    else
+        return false;
+}
+
 function minecraftconnect_activate()
 {
 
