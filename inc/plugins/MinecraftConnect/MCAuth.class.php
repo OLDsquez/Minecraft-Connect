@@ -2,17 +2,24 @@
 /**
  * Class MCAuth
  *
- * @description Intergrate Minecraft in your PHP projects.
+ * @description Integrate Minecraft in your PHP projects.
  * @author Mattia Basone (mattia.basone@gmail.com)
- * @package MCAuth
+ * @author Mike V. (http://community.mybb.com/user-36020.html)
+ * @package MCAuth (modified for Minecraft Connect)
  * @version 1.3
  * @copyright 2013-2015 Mattia Basone
  * @link https://github.com/mattiabasone/MCAuth
  */
 class MCAuth {
 
-
+    #global $mybb;
+    /**! for client token have admin set a random string then sha1 it in here so it stays constant.
+    **   if they change the token it invalidates all sessions i think? http://wiki.vg/Authentication **/
     const CLIENT_TOKEN  = '808772fc24bc4d92ba2dc48bfecb375f';           // Client token for authentication
+    /*if(strlen(trim($mybb->settings['mcc_token'])) != 40)
+        const CLIENT_TOKEN = sha1(trim($mybb->settings['mcc_token']));
+    else
+        const CLIENT_TOKEN = trim($mybb->settings['mcc_token']);*/
     const AUTH_URL      = 'https://authserver.mojang.com/authenticate'; // Mojang authentication server URL
     const PROFILE_URL   = 'https://api.mojang.com/users/profiles/minecraft/';     // Profile page
     const HASPAID_URL   = 'https://www.minecraft.net/haspaid.jsp?user='; // Old but gold, check if user is premium
@@ -109,7 +116,7 @@ class MCAuth {
      * @param $username
      * @return bool
      */
-    public function check_pemium($username) {
+    public function check_premium($username) {
         if ($this->curl_request(self::HASPAID_URL.$username)) {
             if ($this->curlresp == 'true') {
                 return TRUE;
@@ -117,6 +124,15 @@ class MCAuth {
         }
         return FALSE;
     }
+
+    /**
+    * Authenticate user with Mojang
+    *
+    * @access public
+    * @param  $username
+    * @param  $password
+    * @return bool
+    */
     public function authenticate($username, $password) {
         // json array for POST authentication
         $json = array();
@@ -182,5 +198,16 @@ class MCAuth {
             return $this->account['id'];
         }
         return false;
+    }
+
+    /**
+    * Get authentication errors
+    *
+    * @access public
+    * @return string
+    */
+    public function getErr()
+    {
+        return $this->autherr;
     }
 }
