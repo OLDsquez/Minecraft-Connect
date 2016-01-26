@@ -12,7 +12,8 @@
  */
 class MCAuth {
 
-    #global $mybb;
+    ###require_once(dirname(__FILE__, 4).'/global.php');
+
     /**! for client token have admin set a random string then sha1 it in here so it stays constant.
     **   if they change the token it invalidates all sessions i think? http://wiki.vg/Authentication **/
     const CLIENT_TOKEN  = '808772fc24bc4d92ba2dc48bfecb375f';           // Client token for authentication
