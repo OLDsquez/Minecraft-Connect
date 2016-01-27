@@ -1,11 +1,15 @@
 <?php
 /**
- * Class MCAuth
+ * Class MCAuth (for MyBB)
  *
- * @description Intergrate Minecraft in your PHP projects.
+ * Integrate Minecraft authentication with your MyBB applications.
+ * Original MCAuth class created by Mattia Basone. Edited for MyBB
+ * integration by Mike V.
+ *
  * @author Mattia Basone (mattia.basone@gmail.com)
- * @package MCAuth
- * @version 1.3
+ * @author Mike V. (https://github.com/squez/)
+ * @package MCAuth4MyBB
+ * @version 1.0
  * @copyright 2013-2015 Mattia Basone
  * @link https://github.com/mattiabasone/MCAuth
  */
@@ -15,7 +19,7 @@ class MCAuth {
     const AUTH_URL      = 'https://authserver.mojang.com/authenticate'; // Mojang authentication server URL
     const PROFILE_URL   = 'https://api.mojang.com/users/profiles/minecraft/';     // Profile page
     const HASPAID_URL   = 'https://www.minecraft.net/haspaid.jsp?user='; // Old but gold, check if user is premium
-    const USER_AGENT    = 'MCAuth 1.3 (https://github.com/mattiabasone/MCAuth)'; // User Agent used for requests
+    const USER_AGENT    = 'MCAuth4MyBB v1.0 (https://github.com/squez/)'; // User Agent used for requests
 
     public $autherr, $account = array();
     private $curlresp, $curlinfo, $curlerror;
