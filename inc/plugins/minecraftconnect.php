@@ -49,7 +49,7 @@ function minecraftconnect_install()
         'gid'           => $gid
         );
 
-    $token = _generateToken();
+    $token = trim(_generateToken());
     $psettings[] = array(
         'name'          => 'mcc_token',
         'title'         => 'MCC Token',
@@ -158,5 +158,5 @@ function minecraftconnect_uninstall()
 */
 function _generateToken()
 {
-    return sha1(mt_rand() . uniqid(microtime(true), true) . mt_rand());
+    return md5(mt_rand() . uniqid(microtime(true), true) . mt_rand());
 }

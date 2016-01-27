@@ -30,14 +30,19 @@ if($mybb->settings['mcc_enabled'] != '1')
 	exit;
 }
 
-require_once('inc/plugins/MinecraftConnect/MCAuth.class.php');
+#require_once('inc/plugins/MinecraftConnect/MCAuth.class.php');
 
 if($mybb->get_input('act') == 'mclogin')
 {
+	require('inc/plugins/MinecraftConnect/MCAuth.class.php');
+	#$MCAuth = new MCAuth($mybb->settings['mcc_token']);
 	$MCAuth = new MCAuth();
 	$username = $db->escape_string(trim($mybb->get_input('mcusername')));
 	$pass = $db->escape_string($mybb->get_input('mcpassword'));
-	$authenticated = $MCAuth->authenticate($username, $pass);
+	if($MCAuth->setClientToken($username))
+		$authenticated = $MCAuth->authenticate($username, $pass);
+	else
+		$error = $MCAuth->getErr();
 
 	if($authenticated == true)
 		$success = 'Successful login!';
