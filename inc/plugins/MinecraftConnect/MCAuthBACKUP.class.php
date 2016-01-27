@@ -2,20 +2,16 @@
 /**
  * Class MCAuth
  *
- * @description Integrate Minecraft in your PHP projects.
+ * @description Intergrate Minecraft in your PHP projects.
  * @author Mattia Basone (mattia.basone@gmail.com)
- * @author Mike V. (http://community.mybb.com/user-36020.html)
- * @package MCAuth (modified for Minecraft Connect)
+ * @package MCAuth
  * @version 1.3
  * @copyright 2013-2015 Mattia Basone
  * @link https://github.com/mattiabasone/MCAuth
  */
 class MCAuth {
 
-    #require_once(dirname(__FILE__, 4).'/global.php');
 
-    /**! for client token have admin set a random string then sha1 it in here so it stays constant.
-    **   if they change the token it invalidates all sessions i think? http://wiki.vg/Authentication **/
     const CLIENT_TOKEN  = '808772fc24bc4d92ba2dc48bfecb375f';           // Client token for authentication
     const AUTH_URL      = 'https://authserver.mojang.com/authenticate'; // Mojang authentication server URL
     const PROFILE_URL   = 'https://api.mojang.com/users/profiles/minecraft/';     // Profile page
@@ -24,20 +20,58 @@ class MCAuth {
 
     public $autherr, $account = array();
     private $curlresp, $curlinfo, $curlerror;
+    private $clientToken;
 
 
+    public function __construct($username)
+    {
+        if(strlen($username) < 1)
+        {
+            $this->autherr = 'Invalid username/email.';
+            return false;
+        }
+
+        if(!filter_var($username, FILTER_VALIDATE_EMAIL)) // $username is actually a username, not an email
+        {
+            $check = $this->username2uuid($username);
+            if($check != false)
+            {
+                $this->clientToken = $check;
+                return true;
+            }
+            $this->autherr = 'Invalid username.';
+            return false;
+        }
+        else // $username is actually an email
+        {
+            a
+        }
+            
+    }
     /**
-    * Create new instance of MCAuth. This also checks that the client token
-    * is the proper length. [also validates client token???]
+    * Set client token after validating username. Should be sanitized BEFORE passing into controller.
     *
     * @access public
-    * @param  string
+    * @param  string  $username
     * @return void
     */
-    /*public function __construct($token)
+    public function setClientToken($username)
     {
-        $this->clientToken = trim($this->username2uuid('infect'), '-');
-    }*/
+        if(strlen($username) > 0)
+        {
+           # if(filter_var($username, FILTER_VALIDATE_EMAIL) != false)
+
+            $check = $this->username2uuid($username);
+            if($check != false)
+            {
+                $this->clientToken = $check;
+                return true;
+            }
+
+            $this->autherr = 'Invalid username.';
+            return false;
+        }
+    }
 
     /**
      * Generic function for cURL requests
@@ -137,13 +171,13 @@ class MCAuth {
     }
 
     /**
-    * Authenticate user with Mojang
-    *
-    * @access public
-    * @param  $username
-    * @param  $password
-    * @return bool
-    */
+     * Authentication with given credentials
+     *
+     * @access public
+     * @param $username
+     * @param $password
+     * @return bool
+     */
     public function authenticate($username, $password) {
         // json array for POST authentication
         $json = array();
@@ -151,23 +185,22 @@ class MCAuth {
         $json['agent']['version'] = 1;
         $json['username'] = $username;
         $json['password'] = $password;
-        $json['clientToken'] = self::CLIENT_TOKEN;
-        #$json['clientToken'] = trim($this->username2uuid('infect'), '-');
+        #$json['clientToken'] = self::CLIENT_TOKEN;
+        $json['clientToken'] = $this->clientToken;
+        #$this->clientToken = $json['clientToken'];
         if ($this->curl_json(self::AUTH_URL, $json)) {
             if (!isset($this->curlresp->error) AND isset($this->curlresp->selectedProfile->name)) {
                 $this->account['id'] = $this->curlresp->selectedProfile->id;
                 $this->account['username'] = $this->curlresp->selectedProfile->name;
                 $this->account['token'] = $this->curlresp->accessToken;
-                #$this->account['clientToken'] = $this->curlresp->clientToken;
-                #$this->clientToken = $this->curlresp->clientToken;
                 $this->autherr = 'OK';
                 return TRUE;
             } else {
-                $this->autherr = $this->curlresp->errorMessage;
+                $this->autherr = $this->curlresp->errorMessage . '('.$this->curlresp->error.')';
             }
         } else {
             if (isset($this->curlresp->error)) {
-                $this->autherr = $this->curlresp->errorMessage;
+                $this->autherr = $this->curlresp->errorMessage . '('.$this->curlresp->error.')';
             } else {
                 if (isset($this->curlerror)) {
                     $this->autherr = $this->curlerror;
@@ -214,31 +247,20 @@ class MCAuth {
         return false;
     }
 
-    /**
-    * Get authentication errors
-    *
-    * @access public
-    * @return string
-    */
-    public function getErr()
+    public function get_email_info($username)
     {
-        /*$s = $this->username2uuid('infect');
-        if($s != false)
-            return $s;
-        else
-            return 'failed uuid';*/
-        return 'Error: '.$this->autherr;# . ' Token: ' . $this->account['clientToken'] . '###';
-        #return $this->clientToken;
+        if ($this->curl_request(self::PROFILE_URL.urlencode($username))) {
+                $response = json_decode($this->curlresp, true);
+                if (isset($response['id']) && isset($response['name'])) {
+                    $this->account['id'] = $response['id'];
+                    $this->account['username'] = $response['username'];
+                    return true;
+                }
+            }
     }
 
-    /**
-    * Generate client token ($mybb->settings['mcc_token'])
-    *
-    * @access private
-    * @return string
-    */
-    private function _generateToken()
+    public function getErr()
     {
-        return sha1(mt_rand() . uniqid(microtime(true), true) . mt_rand());
+        return $this->autherr . 'client token: ##' . $this->clientToken .'##' . ' account token: @@' . $this->account['token'] . '@@';
     }
 }

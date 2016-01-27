@@ -49,21 +49,14 @@ function minecraftconnect_install()
         'gid'           => $gid
         );
 
-    $token = trim(_generateToken());
-    $psettings[] = array(
-        'name'          => 'mcc_token',
-        'title'         => 'MCC Token',
-        'description'   => 'Randomly generated token used Minecraft Connect. You should not need to change this.',
-        'optionscode'   => 'text',
-        'value'         => $token,
-        'disporder'     => '2',
-        'gid'           => $gid
-        );
-
     foreach($psettings as $setting)
     {
         $db->insert_query('settings', $setting);
     }
+
+    // TO DO (1/27):Add new mc connect fields to users table
+    // string(32) client token, string mcusername, string account token
+    // BE SURE TO EDIT _uninstall() TO REMOVE THEM PROPERLY
 
     rebuild_settings();
 }
@@ -149,14 +142,4 @@ function minecraftconnect_uninstall()
     $db->delete_query('templates', 'title = \'mctest\'');
 
     rebuild_settings();
-}
-
-/**
-* Generate client token ($mybb->settings['mcc_token'])
-*
-* @return string
-*/
-function _generateToken()
-{
-    return md5(mt_rand() . uniqid(microtime(true), true) . mt_rand());
 }

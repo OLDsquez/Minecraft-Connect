@@ -30,24 +30,36 @@ if($mybb->settings['mcc_enabled'] != '1')
 	exit;
 }
 
-#require_once('inc/plugins/MinecraftConnect/MCAuth.class.php');
-
 if($mybb->get_input('act') == 'mclogin')
 {
 	require('inc/plugins/MinecraftConnect/MCAuth.class.php');
 	#$MCAuth = new MCAuth($mybb->settings['mcc_token']);
-	$MCAuth = new MCAuth();
 	$username = $db->escape_string(trim($mybb->get_input('mcusername')));
 	$pass = $db->escape_string($mybb->get_input('mcpassword'));
-	if($MCAuth->setClientToken($username))
+	$mc = new MCAuth($username);
+	if($mc->validateInput())
+	{
+		$auth = $mc->authenticate($username, $pass);
+		if($auth == true)
+		{
+			$username = $mc->getUsername();
+			$success = 'Successful login as '.$username.' ('.$mc->getId().')!';
+			$success .= "<br />Access Token: " . $mc->getAccessToken();
+		}
+		else
+			$error = $mc->getErr();
+	}
+	else
+		$error = $mc->getErr();
+	/*if($MCAuth->setClientToken($username))
 		$authenticated = $MCAuth->authenticate($username, $pass);
 	else
 		$error = $MCAuth->getErr();
 
 	if($authenticated == true)
-		$success = 'Successful login!';
+		$success = 'Successful login as '.$username.'!';
 	else
-		$error = $MCAuth->getErr();
+		$error = $MCAuth->getErr();*/
 }
 
 eval("\$mctest = \"".$templates->get("mctest")."\";");

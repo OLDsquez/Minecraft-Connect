@@ -1,12 +1,3 @@
 <?php
-require('inc/plugins/MinecraftConnect/MCAuth.class.php');
-#echo strlen('808772fc24bc4d92ba2dc48bfecb375f');
-#phpinfo();
 
-$mc = new MCAuth();
-$auth = $mc->authenticate('infect', 'tesatpw');
-
-if($auth == true)
-	echo 'success!';
-else
-	echo $mc->getErr();
+echo strlen('b211add855ae4c169d369d914f696b55');

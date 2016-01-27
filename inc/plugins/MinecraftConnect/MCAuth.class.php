@@ -11,8 +11,7 @@
  */
 class MCAuth {
 
-
-    const CLIENT_TOKEN  = '808772fc24bc4d92ba2dc48bfecb375f';           // Client token for authentication
+    #const CLIENT_TOKEN  = '808772fc24bc4d92ba2dc48bfecb375f';          // Removed; client token is the same as account['id']
     const AUTH_URL      = 'https://authserver.mojang.com/authenticate'; // Mojang authentication server URL
     const PROFILE_URL   = 'https://api.mojang.com/users/profiles/minecraft/';     // Profile page
     const HASPAID_URL   = 'https://www.minecraft.net/haspaid.jsp?user='; // Old but gold, check if user is premium
@@ -20,30 +19,80 @@ class MCAuth {
 
     public $autherr, $account = array();
     private $curlresp, $curlinfo, $curlerror;
-    private $clientToken;
+    private $clientToken = '', $usernameInput = '';
 
+    /////// TO DO: ADD MYBB LANG COMPATIBILITY?
 
     /**
-    * Set client token after validating username. Should be sanitized BEFORE passing into controller.
+    * Create new object and set $usernameInput.
     *
-    * @access public
     * @param  string  $username
     * @return void
     */
-    public function setClientToken($username)
+    public function __construct($username)
     {
-        if(strlen($username) > 0)
+        $this->usernameInput = $username;
+    }
+
+    /**
+    * Validate username/email input from form.
+    *
+    * @access public
+    * @return bool
+    */
+    public function validateInput()
+    {
+        $username = $this->usernameInput;
+        if(strlen($username) < 1)
+        {
+            $this->autherr = 'Invalid username/email.';
+            return false;
+        }
+
+        if(!filter_var($username, FILTER_VALIDATE_EMAIL)) // $username is actually a username, not an email
         {
             $check = $this->username2uuid($username);
             if($check != false)
             {
-                $this->clientToken = $check;
+                $this->setClientToken($check);
                 return true;
             }
-
             $this->autherr = 'Invalid username.';
             return false;
         }
+        else // $username is actually an email so we'll leave the client token blank
+        {
+            $this->setClientToken('');
+            return true;
+        }
+    }
+
+    /**
+    * Set client token.
+    *
+    * @access public
+    * @param  string  $token
+    * @return void
+    */
+    public function setClientToken($token)
+    {
+        $this->clientToken = $token;
+    }
+
+    /**
+    * Retreive client token.
+    *
+    * @access public
+    * @return string
+    */
+    public function getClientToken()
+    {
+        return $this->clientToken;
+    }
+
+    public function getAccessToken()
+    {
+        return $this->account['token'];
     }
 
     /**
@@ -159,14 +208,16 @@ class MCAuth {
         $json['username'] = $username;
         $json['password'] = $password;
         #$json['clientToken'] = self::CLIENT_TOKEN;
-        $json['clientToken'] = trim($this->username2uuid('infect'));
-        $this->clientToken = $json['clientToken'];
+        $json['clientToken'] = $this->clientToken;
         if ($this->curl_json(self::AUTH_URL, $json)) {
             if (!isset($this->curlresp->error) AND isset($this->curlresp->selectedProfile->name)) {
                 $this->account['id'] = $this->curlresp->selectedProfile->id;
                 $this->account['username'] = $this->curlresp->selectedProfile->name;
                 $this->account['token'] = $this->curlresp->accessToken;
                 $this->autherr = 'OK';
+                if(strlen($this->clientToken) != 32)
+                    $this->setClientToken($this->account['id']);
+
                 return TRUE;
             } else {
                 $this->autherr = $this->curlresp->errorMessage . '('.$this->curlresp->error.')';
@@ -220,6 +271,34 @@ class MCAuth {
         return false;
     }
 
+    /**
+    * Retrieve the user's username.
+    *
+    * @access public
+    * @return string
+    */
+    public function getUsername()
+    {
+        return $this->account['username'];
+    }
+
+    /**
+    * Retrieve the user's id (same as client token)
+    *
+    * @access public
+    * @return string
+    */
+    public function getID()
+    {
+        return $this->account['id'];
+    }
+
+    /**
+    * Retrieve any authentication/curl errors.
+    *
+    * @access public
+    * @return string
+    */
     public function getErr()
     {
         return $this->autherr . 'client token: ##' . $this->clientToken .'##' . ' account token: @@' . $this->account['token'] . '@@';
