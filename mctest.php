@@ -3,7 +3,7 @@
 ||========================================================================||
 || Minecraft Connect ||
 || Copyright 2016 ||
-|| Version 0.1 ||
+|| Version 0.2 ||
 || Made by fizz on the official MyBB board ||
 || http://community.mybb.com/user-36020.html ||
 || I don't take responsibility for any errors caused by this plugin. ||
@@ -43,7 +43,7 @@ if($mybb->get_input('act') == 'mclogin')
 		if($auth == true)
 		{
 			$username = $mc->getUsername();
-			$success = 'Successful login as '.$username.' ('.$mc->getId().')!';
+			$success = 'Successful login as '.$username.' ('.$mc->getClientToken().')!';
 			$success .= "<br />Access Token: " . $mc->getAccessToken();
 		}
 		else
@@ -51,15 +51,9 @@ if($mybb->get_input('act') == 'mclogin')
 	}
 	else
 		$error = $mc->getErr();
-	/*if($MCAuth->setClientToken($username))
-		$authenticated = $MCAuth->authenticate($username, $pass);
-	else
-		$error = $MCAuth->getErr();
-
-	if($authenticated == true)
-		$success = 'Successful login as '.$username.'!';
-	else
-		$error = $MCAuth->getErr();*/
+	/*
+	* MYBB LOGIN LINK https://github.com/mybb/mybb/blob/feature/member.php#L1662
+	*/
 }
 
 eval("\$mctest = \"".$templates->get("mctest")."\";");

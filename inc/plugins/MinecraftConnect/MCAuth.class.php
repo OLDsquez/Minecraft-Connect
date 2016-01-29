@@ -1,6 +1,6 @@
 <?php
 /**
- * Class MCAuth (for MyBB)
+ * Class MCAuth (Minecraft Connect for MyBB)
  *
  * Integrate Minecraft authentication with your MyBB applications.
  * Original MCAuth class created by Mattia Basone. Edited for MyBB
@@ -8,7 +8,7 @@
  *
  * @author Mattia Basone (mattia.basone@gmail.com)
  * @author Mike V. (https://github.com/squez/)
- * @package MCAuth4MyBB
+ * @package MCAuth (Minecraft Connect for MyBB)
  * @version 1.0
  * @copyright 2013-2015 Mattia Basone
  * @link https://github.com/mattiabasone/MCAuth

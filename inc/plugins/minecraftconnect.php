@@ -18,7 +18,7 @@ function minecraftconnect_info()
         "website"       => "http://community.mybb.com/user-36020.html", #CHANGE TO FORUM RELEASE THREAD URL
         "author"        => "fizz",
         "authorsite"    => "http://community.mybb.com/user-36020.html",
-        "version"       => "0.1",
+        "version"       => "0.2", //0.5 when login is done, 1.0 when registrate w/ minecraft is done?
         "guid"          => "",
         "codename"      => "minecraftconnect",
         "compatibility" => "18*"
