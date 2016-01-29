@@ -3,4 +3,5 @@
 /**
 * Minecraft Connect English lang file
 **/
-$l['mcconnect'] = 'Minecraft Connect';
+$l['mcc'] = 'Minecraft Connect';
+$l['usercpnav'] = 'Minecraft Connect'; // UserCP usercp nav list 

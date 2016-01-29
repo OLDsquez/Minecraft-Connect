@@ -27,7 +27,10 @@ function minecraftconnect_info()
 
 function minecraftconnect_install()
 {
-    global $db, $mybb;
+    global $db, $mybb, $lang;
+
+    if(!$lang->mcc)
+        $lang->load('minecraftconnect');
     
     $mcc_group = array(
         'name'          => 'mcc',
@@ -80,11 +83,14 @@ function minecraftconnect_is_installed()
 
 function minecraftconnect_activate()
 {
-    global $db, $mybb;
+    global $db, $mybb, $lang;
 
-    $template = array(
+    if(!$lang->mcc)
+        $lang->load('minecraftconnect');
+
+    $templates[] = array(
         "tid" => "NULL",
-        "title" => "mctest",
+        "title" => "mcc_test",
         "template" => $db->escape_string('
         <html>
 <head>
@@ -118,13 +124,31 @@ Username: <input type="text" name="mcusername"> Password: <input type="password"
 </html>'),
     "sid" => "-1"
     );
-    $db->insert_query("templates", $template);
+
+    $templates[] = array(
+        "tid" => "NULL",
+        "title" => "mcc_usercp_menu",
+        "template" => $db->escape_string('
+<tbody style="{$collapsed[\'usercp_mcc\']}" id="usercp_mcc">
+<tr>
+    <td class="trow1 smalltext">
+        <a href="usercp.php?action=minecraftconnect" class="usercp_nav_item usercp_nav_mcc">{$lang->mcc_usercpnav}</a>
+    </td>
+</tr>
+</tbody>'),
+    "sid" => "-1"
+    );
+
+    $db->insert_query_multiple('templates', $templates);
 }
 
 function minecraftconnect_deactivate()
 {
-    global $mybb;
+    global $db, $mybb;
     $mybb->settings['mcc_enabled'] = 0; // Disable Minecraft Connect automatically
+
+    // Delete templates
+    $db->delete_query('templates', "title LIKE 'mcc_%'");
 
     rebuild_settings();
 }
@@ -138,8 +162,43 @@ function minecraftconnect_uninstall()
     $db->write_query("DELETE FROM `".TABLE_PREFIX."settinggroups` WHERE gid='".$g['gid']."'");
     $db->write_query("DELETE FROM `".TABLE_PREFIX."settings` WHERE gid='".$g['gid']."'");
 
-    // Delete templates
-    $db->delete_query('templates', 'title = \'mctest\'');
-
     rebuild_settings();
+}
+// Do plugin hooks
+global $mybb;
+
+if($mybb->settings['mcc_enabled'])
+{
+    // Global
+    $plugins->add_hook('global_start', 'minecraftconnect_global');
+
+    // UserCP
+    $plugins->add_hook('usercp_menu', 'minecraftconnect_usercp_menu', 40);
+}
+
+// add mcc templates to templatelist on proper pages
+function minecraftconnect_global()
+{
+    global $mybb, $lang, $templatelist;
+
+    if($templatelist)
+        $templatelist = explode(',', $templatelist);
+    else
+        $templatelist = array();
+
+    if(THIS_SCRIPT == 'usercp.php')
+        $templatelist[] = 'mcc_usercp_menu';
+
+    $templatelist = implode(',', array_filter($templatelist));
+}
+
+// add usercp nav menu item
+function minecraftconnect_usercp_menu()
+{
+    global $mybb, $templates, $theme, $usercpmenu, $lang, $collapsed, $collapsedimg;
+    
+    if(!$lang->mcc)
+        $lang->load("minecraftconnect");
+    
+    eval("\$usercpmenu .= \"" . $templates->get('mcc_usercp_menu') . "\";");
 }
