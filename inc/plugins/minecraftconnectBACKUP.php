@@ -178,16 +178,24 @@ Username: <input type="text" name="mcusername"> Password: <input type="password"
             </thead>
             <tbody>
             <tr>
+                <td class="trow1" valign="top" width="25%">
+                    <tr>
+                        <td class="{$altbg}"><strong>{$lang->mcc_username}</strong></td>
+                    </tr>
+                    <tr>
+                        <td class="{$altbg}"><strong>{$lang->mcc_id}</strong></td>
+                    </tr>
+                </td>
                 <td class="trow1" valign="top">
-                    <table border="0" cellspacing="{$theme[\'borderwidth\']}" cellpadding="{$theme[\'tablespace\']}" width="100%">
-                     {$content}
+                    <table border="0" cellspacing="{$theme[\'borderwidth\']}" cellpadding="{$theme[\'tablespace\']}" width="75%">
+                     {$settings}
                     </table>
                 </td>
             </tr>
             </tbody>
             </table>
             <div style="text-align:center;">
-                {$linksubmit}
+                <input type="submit" class="button" value="{$lang->mcc_unlink}" />
             </div>
         </form>
     </td>
@@ -279,18 +287,18 @@ function minecraftconnect_usercp_menu()
 
 function minecraftconnect_usercp()
 {
-    global $mybb, $lang, $db, $theme, $templates, $headerinclude, $header, $footer, $plugins, $usercpnav;
+    global $mybb, $lang;
     if(!$lang->mcc)
         $lang->load('minecraftconnect');
 
     if($mybb->get_input('action') == 'minecraftconnect')
     {
-        #global $db, $theme, $templates, $headerinclude, $header, $footer, $plugins, $usercpnav;
+        global $db, $theme, $templates, $headerinclude, $header, $footer, $plugins, $usercpnav;
 
         add_breadcrumb($lang->nav_usercp, 'usercp.php');
         add_breadcrumb($lang->mcc_usercp_title, 'usercp.php?action=minecraftconnect');
 
-        $content = '';
+        $settings = '';
         $settingsArr = array('mcc_username', 'mcc_id');
 
         $q = $db->simple_select('users', implode(',', $settingsArr), "uid = '{$mybb->user['uid']}'");
@@ -298,66 +306,7 @@ function minecraftconnect_usercp()
 
         foreach($settingsArr as $s)
         {
-            $content .= "<tr><td><strong>{$lang->$s}:</strong> {$r[$s]}</td></tr>";
-        }
-
-        if(!is_null($mybb->user['mcc_username']))
-            $linksubmit = '<input type="submit" class="button" value="'.$lang->mcc_unlink.'" name="mcc_unlink" />';
-        else
-            $linksubmit = '<input type="submit" class="button" value="'.$lang->mcc_link.'" name="mcc_link" />';
-
-        // They're linking/unlinking their MC account
-        if($mybb->request_method == 'post')
-        {
-            verify_post_check($mybb->get_input('my_post_key'));
-
-            if($mybb->get_input('mcc_link') XOR $mybb->get_input('mcc_unlink'))
-            {
-                if($mybb->input['mcc_link'])
-                    redirect('usercp.php?action=minecraftconnect&amp;do=link');
-                else
-                    redirect('usercp.php?action=minecraftconnect&amp;do=unlink');
-            }
-            else
-                redirect('usercp.php?action=minecraftconnect', $lang->mcc_usercp_err);
-        }
-
-        eval("\$page = \"" . $templates->get('mcc_usercp') . "\";");
-        output_page($page);
-    }
-
-    // Display link/unlink page content
-    // ***2/1/16: ADD A NEW TEMPLATE FOR THIS PAGE, ALSO CHANGE ACTION TO SOMETHING DIFFERENT
-    if($mybb->get_input('action') == 'minecraftconnect' && !is_null($mybb->get_input('do')))
-    {
-        $link = false;
-        switch($mybb->get_input('do'))
-        {
-            case 'link':
-                $link = true;
-            break;
-
-            case 'unlink':
-                $link = false;
-            break;
-
-            default:
-                // error
-                return false;
-        }
-
-        if($mybb->request_method == 'post')
-        {
-            // do linking/unlinking shit
-        }
-
-        if($link)
-        {
-            $content = 'LINK';
-        }
-        else
-        {
-            $content = 'UNLINK';
+            $settings .= "<tr><td>{$r[$s]}</td></tr>";
         }
 
         eval("\$page = \"" . $templates->get('mcc_usercp') . "\";");
