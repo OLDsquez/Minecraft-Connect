@@ -1,12 +1,23 @@
 <?php
-/*****
-* COPYRIGHT SHIT
-*****/
+/**************************************************************************\
+||========================================================================||
+|| Minecraft Connect ||
+|| Copyright 2016 ||
+|| Version 0.4 ||
+|| Made by fizz on the official MyBB board ||
+|| http://community.mybb.com/user-36020.html ||
+|| https://github.com/squez/Minecraft-Connect ||
+|| I don't take responsibility for any errors caused by this plugin. ||
+|| Always keep MyBB up to date and always keep this plugin up to date. ||
+|| You may NOT redistribute this plugin, sell it, ||
+|| remove copyrights, or claim it as your own in any way. ||
+||========================================================================||
+\*************************************************************************/
 
 // Disallow direct access to this file for security reasons
 if(!defined("IN_MYBB"))
 {
-    die("Direct initialization of this file is not allowed.");
+    die('Not allowed.');
 }
 
 
@@ -18,7 +29,7 @@ function minecraftconnect_info()
         "website"       => "http://community.mybb.com/user-36020.html", #CHANGE TO FORUM RELEASE THREAD URL
         "author"        => "fizz",
         "authorsite"    => "http://community.mybb.com/user-36020.html",
-        "version"       => "0.2", //0.5 when login is done, 1.0 when registrate w/ minecraft is done?
+        "version"       => "0.4", //0.5 when login is done, 1.0 when registrate w/ minecraft is done?
         "guid"          => "",
         "codename"      => "minecraftconnect",
         "compatibility" => "18*"
@@ -199,6 +210,60 @@ Username: <input type="text" name="mcusername"> Password: <input type="password"
         'sid'   => '-1'
         );
 
+// UserCP main content
+    $templates[] = array(
+        'tid'   => 'NULL',
+        'title' => 'mcc_usercp_link',
+        'template' => $db->escape_string('
+<html>
+<head>
+<title>{$lang->mcc_usercp_link_title} - {$mybb->settings[\'bbname\']}</title>
+{$headerinclude}
+</head>
+<body>
+ {$header}
+<table width="100%" border="0" align="center">
+<tr>
+     {$usercpnav}
+    <td valign="top">
+         {$inlinesuccess}
+        <form action="usercp.php?action=minecraftconnect&amp;do=link" method="post">
+            <input type="hidden" name="my_post_key" value="{$mybb->post_code}" />
+            <table border="0" cellspacing="{$theme[\'borderwidth\']}" cellpadding="{$theme[\'tablespace\']}" class="tborder">
+            <thead>
+            <tr>
+                <th class="thead" colspan="2">
+                    <strong>{$lang->mcc_usercp_link_title}</strong>
+                </th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td class="trow1" valign="top">
+                    <table border="0" cellspacing="{$theme[\'borderwidth\']}" cellpadding="{$theme[\'tablespace\']}" width="100%">
+                        {$content}
+                        <tr>
+                            <td>{$lang->mcc_username} <input type="text" value="$mcusername" name="mcusername" $readonly></td>
+                        </tr>
+                        $passwordfield
+                    </table>
+                </td>
+            </tr>
+            </tbody>
+            </table>
+            <div style="text-align:center;">
+                <input type="submit" class="button" value="{$lang->mcc_link}" />
+            </div>
+        </form>
+    </td>
+</tr>
+</table>
+ {$footer}
+</body>
+</html>'),
+        'sid'   => '-1'
+        );
+
     $db->insert_query_multiple('templates', $templates);
 }
 
@@ -255,10 +320,12 @@ function minecraftconnect_global()
     if(THIS_SCRIPT == 'usercp.php')
         $templatelist[] = 'mcc_usercp_menu';
 
-    if(THIS_SCRIPT == 'usercp.php' AND $mybb->get_input('action') == 'minecraftconnect')
+    if(THIS_SCRIPT == 'usercp.php' AND $mybb->get_input('action') === 'minecraftconnect')
     {
         $templatelist[] = 'mcc_usercp_menu';
         $templatelist[] = 'mcc_usercp';
+        if($mybb->get_input('do') === 'link')
+            $templatelist[] = 'mcc_usercp_link';
     }
 
     $templatelist = implode(',', array_filter($templatelist));
@@ -283,7 +350,7 @@ function minecraftconnect_usercp()
     if(!$lang->mcc)
         $lang->load('minecraftconnect');
 
-    if($mybb->get_input('action') == 'minecraftconnect')
+    if($mybb->get_input('action') == 'minecraftconnect' && !isset($mybb->input['do']))
     {
         #global $db, $theme, $templates, $headerinclude, $header, $footer, $plugins, $usercpnav;
 
@@ -326,41 +393,46 @@ function minecraftconnect_usercp()
         output_page($page);
     }
 
-    // Display link/unlink page content
+    // Display link page content
     // ***2/1/16: ADD A NEW TEMPLATE FOR THIS PAGE, ALSO CHANGE ACTION TO SOMETHING DIFFERENT
-    if($mybb->get_input('action') == 'minecraftconnect' && !is_null($mybb->get_input('do')))
+    if($mybb->get_input('action') == 'minecraftconnect' && $mybb->get_input('do') === 'link')
     {
-        $link = false;
-        switch($mybb->get_input('do'))
-        {
-            case 'link':
-                $link = true;
-            break;
+        // If user already has MC acc linked, redirect them to main MCC usercp page
+        if(!empty($mybb->user['mcc_username']) OR isset($mybb->user['mcc_username']))
+            redirect('usercp.php?action=minecraftconnect', $lang->mcc_already_linked);
 
-            case 'unlink':
-                $link = false;
-            break;
-
-            default:
-                // error
-                return false;
-        }
-
+        // If POSTed then they're trying to submit linking form
         if($mybb->request_method == 'post')
         {
             // do linking/unlinking shit
+            require('/MinecraftConnect/MCAuth.class.php');
+            $username = $db->escape_string(trim($mybb->get_input('mcusername')));
+            $password = $db->escape_string($mybb->get_input('mcpassword'));
+            $mc = new MCAuth($username);
+            if($mc->validateInput())
+            {
+                $auth = $mc->authenticate($username, $pass);
+                if($auth == true)
+                {
+                    $username = $mc->getUsername();
+                    $content = 'Successful login as '.$username.' ('.$mc->getClientToken().')!';
+                    $content .= "<br />Access Token: " . $mc->getAccessToken();
+                }
+            }
+            else
+                $content = $mc->getErr();
+
+            #$content = 'doing shit behind the scenes';
+        }
+        else // Display link page & form
+        {
+            $content = $lang->mcc_link_heading;
+            $mcusername = '';
+            $readonly = '';
+            $passwordfield = '<tr><td class="trow1">{$lang->mcc_password} <input type="password" name="mcpassword"></td></tr>';
         }
 
-        if($link)
-        {
-            $content = 'LINK';
-        }
-        else
-        {
-            $content = 'UNLINK';
-        }
-
-        eval("\$page = \"" . $templates->get('mcc_usercp') . "\";");
-        output_page($page);
+        eval("\$linkpage = \"" . $templates->get('mcc_usercp_link') . "\";");
+        output_page($linkpage);
     }
 }
