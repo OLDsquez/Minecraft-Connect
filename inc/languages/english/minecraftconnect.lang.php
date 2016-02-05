@@ -27,6 +27,13 @@ $l['mcc_link_success'] = 'Successfully linked Minecraft username <strong>{1}</st
 $l['mcc_unlink_success'] = 'Successfully unlinked Minecraft account <strong>{1}</strong>!';
 
 // minecraftconnect.php (Main Page)
-$l['mcc_login_success'] = 'Successfully logged in via Minecraft Connect, <strong>{1}</strong>! Redirecting to home page...';
+$l['mcc_login_success'] = 'Successfully logged in via Minecraft Connect, <strong>{1}</strong>(MC username: <strong>{2}</strong>)! Redirecting to home page...';
 $l['mcc_login_fail'] = 'Failed to login with Minecraft credentials.';
 $l['mcc_login_header'] = 'Login to MyBB with your Minecraft account info! Powered by <a href="https://github.com/squez/Minecraft-Connect/" target="_NEW">Minecraft Connect</a>';
+$l['mcc_already_loggedin'] = 'Already logged in! Redirecting to forum index...';
+
+// Login/Register template edit
+$l['mcc_login'] = 'Login with Minecraft';
+
+// WOL
+$l['mcc_viewing_login'] = 'Logging in with Minecraft Connect';

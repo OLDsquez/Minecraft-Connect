@@ -3,7 +3,7 @@
 ||========================================================================||
 || Minecraft Connect ||
 || Copyright 2016 ||
-|| Version 0.4 ||
+|| Version 0.5 ||
 || Made by fizz on the official MyBB board ||
 || http://community.mybb.com/user-36020.html ||
 || https://github.com/squez/Minecraft-Connect ||
@@ -29,7 +29,7 @@ function minecraftconnect_info()
         "website"       => "http://community.mybb.com/user-36020.html", #CHANGE TO FORUM RELEASE THREAD URL
         "author"        => "fizz",
         "authorsite"    => "http://community.mybb.com/user-36020.html",
-        "version"       => "0.4", //0.5 when login is done, 1.0 when register w/ minecraft is done?
+        "version"       => "0.5", // 1.0 when register w/ minecraft is done?
         "guid"          => "",
         "codename"      => "minecraftconnect",
         "compatibility" => "18*"
@@ -140,7 +140,7 @@ Username: <input type="text" name="mccusername"> Password: <input type="password
 <tr>
     <td class="tcat">
         <div class="expcolimage">
-            <img src="{$theme[\'imgdir\']}/collapse{$collapsedimg[\'collapse\']}.png" id="usercpmcc_img" class="expander" alt="[-]" title="[-]" />
+            <img src="{$theme[\'imgdir\']}/collapse{$collapsedimg[\'usercpminecraft\']}.png" id="usercpminecraft_img" class="expander" alt="[-]" title="[-]" />
         </div>
         <div>
             <span class="smalltext">
@@ -149,13 +149,18 @@ Username: <input type="text" name="mccusername"> Password: <input type="password
         </div>
     </td>
 </tr>
-<tbody style="{$collapsed[\'usercpmcc_e\']}" id="usercpmcc_e">
+<tbody style="{$collapsed[\'usercpminecraft_e\']}" id="usercpminecraft_e">
     <tr>
         <td class="trow1 smalltext">
             <a href="usercp.php?action=minecraftconnect" class="usercp_nav_item usercp_nav_mcc">{$lang->mcc_usercpnav}</a>
         </td>
     </tr>
-</tbody>'),
+</tbody>
+<style type="text/css">
+    .usercp_nav_mcc {
+        background: url(\'images/usercp/minecraft.png\') no-repeat left center;
+    }
+</style>'),
         'sid'   => '-1'
         );
 
@@ -316,6 +321,11 @@ $templates[] = array(
         );
 
     $db->insert_query_multiple('templates', $templates);
+
+    // Edit login/register block template
+    require_once(MYBB_ROOT.'inc/adminfunctions_templates.php');
+    find_replace_templatesets('header_welcomeblock_guest', '#' . preg_quote('{$lang->welcome_register}</a>') . '#i', '{$lang->welcome_register}</a> <img src="images/minecraft.png"> <a href="{$mybb->settings[\'bburl\']}/minecraftconnect.php?act=login">{$lang->mcc_login}</a>');
+
     rebuild_settings();
 }
 
@@ -326,6 +336,10 @@ function minecraftconnect_deactivate()
 
     // Delete templates
     $db->delete_query('templates', "title LIKE 'mcc_%'");
+
+    // Delete our login/register welcome block template edit
+    require_once(MYBB_ROOT.'inc/adminfunctions_templates.php');
+    find_replace_templatesets('header_welcomeblock_guest', '#' . preg_quote('<img src="images/minecraft.png"> <a href="{$mybb->settings[\'bburl\']}/minecraftconnect.php?act=login">{$lang->mcc_login}</a>') . '#i', '');
 
     rebuild_settings();
 }
@@ -357,6 +371,10 @@ if($mybb->settings['mcc_enabled'])
     // UserCP
     $plugins->add_hook('usercp_menu', 'minecraftconnect_usercp_menu', 40);
     $plugins->add_hook('usercp_start', 'minecraftconnect_usercp');
+
+    // Who's Online
+    $plugins->add_hook("fetch_wol_activity_end", "minecraftconnect_fetch_wol_activity");
+    $plugins->add_hook("build_friendly_wol_location_end", "minecraftconnect_build_wol_location");
 }
 
 // add mcc templates to templatelist on proper pages
@@ -533,4 +551,56 @@ function minecraftconnect_usercp()
         eval("\$unlinkpage = \"" . $templates->get('mcc_usercp_unlink') . "\";");
         output_page($unlinkpage);
     }
+}
+
+// Fetch user's online activity
+function minecraftconnect_fetch_wol_activity(&$activity)
+{
+    global $user, $mybb;
+    
+    // get the base filename
+    $split_loc = explode(".php", $activity['location']);
+    if ($split_loc[0] == $user['location']) {
+        $filename = '';
+    } else {
+        $filename = my_substr($split_loc[0], -my_strpos(strrev($split_loc[0]), "/"));
+    }
+    
+    // get parameters of the URI
+    if ($split_loc[1]) {
+        $temp = explode("&amp;", my_substr($split_loc[1], 1));
+        foreach ($temp as $param) {
+            $temp2                 = explode("=", $param, 2);
+            $temp2[0]              = str_replace("amp;", '', $temp2[0]);
+            $parameters[$temp2[0]] = $temp2[1];
+        }
+    }
+    
+    // if our plugin is found, store our custom vars in the main $user_activity array
+    switch ($filename) {
+        case 'minecraftconnect':
+            if ($parameters['action']) {
+                $activity['activity'] = $parameters['action'];
+            }
+            break;
+    }
+    
+    return $activity;
+}
+
+// Build online location
+function minecraftconnect_build_wol_location(&$plugin_array)
+{
+    global $lang;
+    
+    if(!$lang->mcc)
+        $lang->load('minecraftconnect');
+    
+    // let's see what action we are watching
+    switch ($plugin_array['user_activity']['activity']) {
+        case "login":
+            $plugin_array['location_name'] = $lang->mcc_viewing_login;
+            break;
+    }
+    return $plugin_array;
 }

@@ -3,7 +3,7 @@
 ||========================================================================||
 || Minecraft Connect ||
 || Copyright 2016 ||
-|| Version 0.4 ||
+|| Version 0.5 ||
 || Made by fizz on the official MyBB board ||
 || http://community.mybb.com/user-36020.html ||
 || https://github.com/squez/Minecraft-Connect/ ||
@@ -29,6 +29,13 @@ add_breadcrumb($lang->mcc, "minecraftconnect.php");
 if($mybb->settings['mcc_enabled'] != 1)
 {
 	header("Location: index.php");
+	exit;
+}
+
+// If user is already logged in, redirect to index
+if($mybb->user['username'])
+{
+	redirect('index.php', $lang->mcc_already_loggedin);
 	exit;
 }
 
@@ -58,7 +65,10 @@ if($mybb->get_input('act') == 'login')
 				$mcuser = $mc->getUsername();
 				// if user authenticated, log them in to MyBB
 				if($mc->login($mcuser))
-					redirect('index.php', $lang->sprintf($lang->mcc_login_success, $mcuser));
+				{
+					$myuser = $db->fetch_array($db->simple_select('users', 'username', "mcc_username='$mcuser'"));
+					redirect('index.php', $lang->sprintf($lang->mcc_login_success, $myuser['username'], $mcuser));
+				}
 				else
 					redirect('minecraftconnect.php?act=login', $lang->mcc_login_fail);
 			}
