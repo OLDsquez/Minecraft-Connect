@@ -1,30 +1,52 @@
 <?php
 /**
- * Class MCAuth
+ * Class MCAuth (Minecraft Connect for MyBB)
  *
- * @description Intergrate Minecraft in your PHP projects.
+ * Integrate Minecraft authentication with your MyBB applications.
+ * Original MCAuth class created by Mattia Basone. Edited for MyBB
+ * integration by Mike V.
+ *
  * @author Mattia Basone (mattia.basone@gmail.com)
- * @package MCAuth
- * @version 1.3
+ * @author Mike V. (https://github.com/squez/)
+ * @package MCAuth (Minecraft Connect for MyBB)
+ * @version 1.0
  * @copyright 2013-2015 Mattia Basone
  * @link https://github.com/mattiabasone/MCAuth
  */
 class MCAuth {
 
-
-    const CLIENT_TOKEN  = '808772fc24bc4d92ba2dc48bfecb375f';           // Client token for authentication
+    #const CLIENT_TOKEN  = '808772fc24bc4d92ba2dc48bfecb375f';          // Removed; client token is the same as account['id']
     const AUTH_URL      = 'https://authserver.mojang.com/authenticate'; // Mojang authentication server URL
     const PROFILE_URL   = 'https://api.mojang.com/users/profiles/minecraft/';     // Profile page
     const HASPAID_URL   = 'https://www.minecraft.net/haspaid.jsp?user='; // Old but gold, check if user is premium
-    const USER_AGENT    = 'MCAuth 1.3 (https://github.com/mattiabasone/MCAuth)'; // User Agent used for requests
+    const USER_AGENT    = 'MinecraftConnect v0.5 (https://github.com/squez/)'; // User Agent used for requests
 
     public $autherr, $account = array();
     private $curlresp, $curlinfo, $curlerror;
-    private $clientToken;
+    private $clientToken = '', $usernameInput = '';
 
+    /////// TO DO: ADD MYBB LANG COMPATIBILITY?
 
+    /**
+    * Create new object and set $usernameInput.
+    *
+    * @param  string  $username
+    * @return void
+    */
     public function __construct($username)
     {
+        $this->usernameInput = $username;
+    }
+
+    /**
+    * Validate username/email input from form.
+    *
+    * @access public
+    * @return bool
+    */
+    public function validateInput()
+    {
+        $username = $this->usernameInput;
         if(strlen($username) < 1)
         {
             $this->autherr = 'Invalid username/email.';
@@ -36,41 +58,45 @@ class MCAuth {
             $check = $this->username2uuid($username);
             if($check != false)
             {
-                $this->clientToken = $check;
+                $this->setClientToken($check);
                 return true;
             }
             $this->autherr = 'Invalid username.';
             return false;
         }
-        else // $username is actually an email
+        else // $username is actually an email so we'll leave the client token blank
         {
-            a
+            $this->setClientToken('');
+            return true;
         }
-            
     }
+
     /**
-    * Set client token after validating username. Should be sanitized BEFORE passing into controller.
+    * Set client token.
     *
     * @access public
-    * @param  string  $username
+    * @param  string  $token
     * @return void
     */
-    public function setClientToken($username)
+    public function setClientToken($token)
     {
-        if(strlen($username) > 0)
-        {
-           # if(filter_var($username, FILTER_VALIDATE_EMAIL) != false)
+        $this->clientToken = $token;
+    }
 
-            $check = $this->username2uuid($username);
-            if($check != false)
-            {
-                $this->clientToken = $check;
-                return true;
-            }
+    /**
+    * Retreive client token.
+    *
+    * @access public
+    * @return string
+    */
+    public function getClientToken()
+    {
+        return $this->clientToken;
+    }
 
-            $this->autherr = 'Invalid username.';
-            return false;
-        }
+    public function getAccessToken()
+    {
+        return $this->account['token'];
     }
 
     /**
@@ -187,13 +213,15 @@ class MCAuth {
         $json['password'] = $password;
         #$json['clientToken'] = self::CLIENT_TOKEN;
         $json['clientToken'] = $this->clientToken;
-        #$this->clientToken = $json['clientToken'];
         if ($this->curl_json(self::AUTH_URL, $json)) {
             if (!isset($this->curlresp->error) AND isset($this->curlresp->selectedProfile->name)) {
                 $this->account['id'] = $this->curlresp->selectedProfile->id;
                 $this->account['username'] = $this->curlresp->selectedProfile->name;
                 $this->account['token'] = $this->curlresp->accessToken;
                 $this->autherr = 'OK';
+                if(strlen($this->clientToken) != 32)
+                    $this->setClientToken($this->account['id']);
+
                 return TRUE;
             } else {
                 $this->autherr = $this->curlresp->errorMessage . '('.$this->curlresp->error.')';
@@ -210,6 +238,43 @@ class MCAuth {
             }
         }
         return FALSE;
+    }
+
+    /**
+    * Log the user into MyBB with their MC credentials.
+    * Must be authenticated with authenticate() first!
+    *
+    * @access public
+    * @param  $username
+    * @return bool
+    */
+    public function login($username)
+    {
+        global $mybb, $db, $session;
+
+        if(!isset($username))
+            $username = $this->getUsername();
+
+        $q = $db->simple_select('users', '*', "mcc_username = '$username'");
+        if($db->num_rows($q) == 1)
+        {
+            $user = $db->fetch_array($q);
+            if(!$user['uid'])
+                return false;
+
+            // Delete all the old sessions from user's IP address
+            $db->delete_query('sessions', "ip='".$db->escape_string($session->ipaddress)."' AND sid != '{$session->sid}'");
+
+            // Create a new session
+            $db->update_query('sessions', array('uid'=>$user['uid']), "sid='{$session->sid}'");
+            
+            // Set up the login cookies
+            my_setcookie("mybbuser", $user['uid'] . "_" . $user['loginkey'], null, true);
+            my_setcookie("sid", $session->sid, -1, true);
+            
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -247,18 +312,34 @@ class MCAuth {
         return false;
     }
 
-    public function get_email_info($username)
+    /**
+    * Retrieve the user's username.
+    *
+    * @access public
+    * @return string
+    */
+    public function getUsername()
     {
-        if ($this->curl_request(self::PROFILE_URL.urlencode($username))) {
-                $response = json_decode($this->curlresp, true);
-                if (isset($response['id']) && isset($response['name'])) {
-                    $this->account['id'] = $response['id'];
-                    $this->account['username'] = $response['username'];
-                    return true;
-                }
-            }
+        return $this->account['username'];
     }
 
+    /**
+    * Retrieve the user's id (same as client token)
+    *
+    * @access public
+    * @return string
+    */
+    public function getID()
+    {
+        return $this->account['id'];
+    }
+
+    /**
+    * Retrieve any authentication/curl errors.
+    *
+    * @access public
+    * @return string
+    */
     public function getErr()
     {
         return $this->autherr . 'client token: ##' . $this->clientToken .'##' . ' account token: @@' . $this->account['token'] . '@@';

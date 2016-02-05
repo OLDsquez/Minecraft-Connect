@@ -1,6 +1,7 @@
-2/1
+2/5
 =====
-- Finish usercp functions
-- Finish mybb login integration
-- Add login w/ minecraft button to current login postbit
+- Finish mybb login integration [90%]
+- Add login w/ minecraft button to current login postbit [0%]
+- Edit all plugin files to use $lang instead of raw text [75%?]
 - Add register with minecraft?
+- Login rate limiter
