@@ -33,6 +33,9 @@ if($mybb->settings['mcc_enabled'] != 1)
 }
 
 $content = $lang->mcc_login_header;
+// Currently only function of this page is to authenticate a user
+// and log them into MyBB with their Minecraft credentials.
+// Possible registration with Minecraft in the future...
 if($mybb->get_input('act') == 'login')
 {
 	$content = $lang->mcc_login_header;
