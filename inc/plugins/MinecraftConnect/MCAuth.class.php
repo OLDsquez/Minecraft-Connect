@@ -241,6 +241,43 @@ class MCAuth {
     }
 
     /**
+    * Log the user into MyBB with their MC credentials.
+    * Must be authenticated with authenticate() first!
+    *
+    * @access public
+    * @param  $username
+    * @return bool
+    */
+    public function login($username)
+    {
+        global $mybb, $db, $session;
+
+        if(!isset($username))
+            $username = $this->getUsername();
+
+        $q = $db->simple_select('users', '*', "mcc_username = '$username'");
+        if($db->num_rows($q) == 1)
+        {
+            $user = $db->fetch_array($q);
+            if(!$user['uid'])
+                return false;
+
+            // Delete all the old sessions from user's IP address
+            $db->delete_query('sessions', "ip='".$db->escape_string($session->ipaddress)."' AND sid != '{$session->sid}'");
+
+            // Create a new session
+            $db->update_query('sessions', array('uid'=>$user['uid']), "sid='{$session->sid}'");
+            
+            // Set up the login cookies
+            my_setcookie("mybbuser", $user['uid'] . "_" . $user['loginkey'], null, true);
+            my_setcookie("sid", $session->sid, -1, true);
+            
+            return true;
+        }
+        return false;
+    }
+
+    /**
      * Utility: Get correct username and minecraft id from username (NOT email, case insensitive)
      *
      * @access public

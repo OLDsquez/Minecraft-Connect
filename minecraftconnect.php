@@ -3,7 +3,7 @@
 ||========================================================================||
 || Minecraft Connect ||
 || Copyright 2016 ||
-|| Version 0.3 ||
+|| Version 0.4 ||
 || Made by fizz on the official MyBB board ||
 || http://community.mybb.com/user-36020.html ||
 || https://github.com/squez/Minecraft-Connect/ ||
@@ -15,32 +15,36 @@
 \*************************************************************************/
 
 define("IN_MYBB", 1);
-define('THIS_SCRIPT', 'mctest.php');
+define('THIS_SCRIPT', 'minecraftconnect.php');
 
 require_once("./global.php");
 
-#$lang->load("safelink");
+if(!$lang->mcc)
+	$lang->load("minecraftconnect");
 
 // Add link in breadcrumb
-add_breadcrumb('Minecraft Connect', "mctest.php");
+add_breadcrumb($lang->mcc, "minecraftconnect.php");
+
+// Redirect user to board index if Minecraft Connect is disabled
 if($mybb->settings['mcc_enabled'] != 1)
 {
-	$error = 'disabled';
-	eval("\$minecraftconnect = \"".$templates->get("mcc_main")."\";");
-	output_page($minecraftconnect);
+	header("Location: index.php");
 	exit;
 }
 
+$content = $lang->mcc_login_header;
 if($mybb->get_input('act') == 'login')
 {
+	$content = $lang->mcc_login_header;
+
 	if($mybb->request_method == 'post')
 	{
 		verify_post_check($mybb->get_input('my_post_key'));
 
 		require('inc/plugins/MinecraftConnect/MCAuth.class.php');
 
-		$username = $db->escape_string(trim($mybb->get_input('mcusername')));
-		$pass = $db->escape_string($mybb->get_input('mcpassword'));
+		$username = $db->escape_string(trim($mybb->get_input('mccusername')));
+		$pass = $db->escape_string($mybb->get_input('mccpassword'));
 		$mc = new MCAuth($username);
 		if($mc->validateInput())
 		{
@@ -53,13 +57,13 @@ if($mybb->get_input('act') == 'login')
 				if($mc->login($mcuser))
 					redirect('index.php', $lang->sprintf($lang->mcc_login_success, $mcuser));
 				else
-					redirect('mctest.php?act=login', $lang->mcc_login_fail);
+					redirect('minecraftconnect.php?act=login', $lang->mcc_login_fail);
 			}
 			else
-				$error = $mc->getErr();
+				$content = $mc->getErr();
 		}
 		else
-			$error = $mc->getErr();
+			$content = $mc->getErr();
 	}
 }
 
