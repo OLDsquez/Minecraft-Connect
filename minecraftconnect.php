@@ -3,7 +3,7 @@
 ||========================================================================||
 || Minecraft Connect ||
 || Copyright 2016 ||
-|| Version 0.5 ||
+|| Version 0.5.1 ||
 || Made by fizz on the official MyBB board ||
 || http://community.mybb.com/user-36020.html ||
 || https://github.com/squez/Minecraft-Connect/ ||

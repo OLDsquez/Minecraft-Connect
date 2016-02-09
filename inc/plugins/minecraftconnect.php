@@ -3,7 +3,7 @@
 ||========================================================================||
 || Minecraft Connect ||
 || Copyright 2016 ||
-|| Version 0.5 ||
+|| Version 0.5.1 ||
 || Made by fizz on the official MyBB board ||
 || http://community.mybb.com/user-36020.html ||
 || https://github.com/squez/Minecraft-Connect ||
@@ -29,7 +29,7 @@ function minecraftconnect_info()
         "website"       => "http://community.mybb.com/user-36020.html", #CHANGE TO FORUM RELEASE THREAD URL
         "author"        => "fizz",
         "authorsite"    => "http://community.mybb.com/user-36020.html",
-        "version"       => "0.5", // 1.0 when register w/ minecraft is done?
+        "version"       => "0.5.1", // 1.0 when register w/ minecraft is done?
         "guid"          => "",
         "codename"      => "minecraftconnect",
         "compatibility" => "18*"
