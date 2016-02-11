@@ -26,7 +26,7 @@ function minecraftconnect_info()
     return array(
         "name"          => "Minecraft Connect",
         "description"   => "Login to MyBB with your Minecraft account",
-        "website"       => "http://community.mybb.com/user-36020.html", #CHANGE TO FORUM RELEASE THREAD URL
+        "website"       => "http://community.mybb.com/thread-188755.html", #CHANGE TO FORUM RELEASE THREAD URL
         "author"        => "fizz",
         "authorsite"    => "http://community.mybb.com/user-36020.html",
         "version"       => "0.5.2", // 1.0 when register w/ minecraft is done?
@@ -427,8 +427,6 @@ function minecraftconnect_usercp()
 
     if($mybb->get_input('action') == 'minecraftconnect' && !isset($mybb->input['do']))
     {
-        #global $db, $theme, $templates, $headerinclude, $header, $footer, $plugins, $usercpnav;
-
         add_breadcrumb($lang->nav_usercp, 'usercp.php');
         add_breadcrumb($lang->mcc_usercp_title, 'usercp.php?action=minecraftconnect');
 
@@ -507,8 +505,6 @@ function minecraftconnect_usercp()
             }
             else
                 redirect('usercp.php?action=minecraftconnect&amp;do=link', $mc->getErr());
-
-            #$content = 'doing shit behind the scenes';
         }
         else // Display link page & form
         {
@@ -576,7 +572,7 @@ function minecraftconnect_fetch_wol_activity(&$activity)
         }
     }
     
-    // if our plugin is found, store our custom vars in the main $user_activity array
+    // if our plugin is found, store our custom vars in the main $activity array
     switch ($filename) {
         case 'minecraftconnect':
             if ($parameters['action']) {
