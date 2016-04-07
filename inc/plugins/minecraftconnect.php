@@ -491,7 +491,13 @@ function minecraftconnect_usercp()
                 $auth = $mc->authenticate($username, $password);
                 if($auth == true)
                 {
-                    $mcusername = $mc->getUsername();                 
+                    $mcusername = $mc->getUsername();
+
+                    $check = $db->num_rows($db->simple_select('users', 'uid', "mcc_username='$mcusername'"));
+                    // Check if username is taken in database already
+                    if($check > 0)
+                        redirect('usercp.php?action=minecraftconnect&amp;do=link', $lang->mcc_name_taken);
+
                     // Link user's account
                     $db->update_query('users', array(
                         'mcc_username'      => $mcusername,
@@ -536,7 +542,7 @@ function minecraftconnect_usercp()
             if($db->write_query($q))
                 redirect('usercp.php?action=minecraftconnect', $lang->sprintf($lang->mcc_unlink_success, $mcuser));
             else
-                $content = "Failed to unlink '$mcuser'.";
+                $content = $lang->mcc_unlink_fail;
         }
         // Show unlink form if GET request
         else

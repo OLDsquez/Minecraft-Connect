@@ -25,6 +25,8 @@ $l['mcc_unlink_heading'] = 'Delete your Minecraft account information from your 
 $l['mcc_unlink_confirm'] = 'Are you sure?';
 $l['mcc_link_success'] = 'Successfully linked Minecraft username <strong>{1}</strong>!';
 $l['mcc_unlink_success'] = 'Successfully unlinked Minecraft account <strong>{1}</strong>!';
+$l['mcc_unlink_fail'] = 'Failed to unlink Minecraft account.';
+$l['mcc_name_taken'] = 'That Minecraft name is already taken!';
 
 // minecraftconnect.php (Main Page)
 $l['mcc_login_success'] = 'Successfully logged in via Minecraft Connect, <strong>{1}</strong>(MC username: <strong>{2}</strong>)! Redirecting to home page...';
