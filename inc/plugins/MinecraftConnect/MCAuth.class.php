@@ -10,7 +10,7 @@
  * @author Mike V. (https://github.com/squez/)
  * @package MCAuth (Minecraft Connect for MyBB)
  * @version 1.0
- * @copyright 2013-2015 Mattia Basone
+ * @copyright 2013-2015 Mattia Basone, 2016 Mike V.
  * @link https://github.com/mattiabasone/MCAuth
  */
 class MCAuth {
