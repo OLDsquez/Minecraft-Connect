@@ -10,7 +10,7 @@
 =====
 - Clean up error messages so they don't reveal so much technical info [0%]
 	- Add plugin setting to see if user wants to enable debug mode, in which case show the technical info [0%]
-- Add button to ACP? that let's admin test if connection to Mojang works properly
+- Add button to ACP? that lets admin test if connection to Mojang works properly
 
 1.0 Release
 =====
