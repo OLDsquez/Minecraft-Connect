@@ -1,7 +1,18 @@
 <?php
-
-/**
-* Minecraft Connect English lang file
+/**************************************************************************\
+||========================================================================||
+|| Minecraft Connect English Language File ||
+|| Copyright 2016 ||
+|| Version 0.6 ||
+|| Made by fizz on the official MyBB board ||
+|| http://community.mybb.com/user-36020.html ||
+|| https://github.com/squez/Minecraft-Connect/ ||
+|| I don't take responsibility for any errors caused by this plugin. ||
+|| Always keep MyBB up to date and always keep this plugin up to date. ||
+|| You may NOT redistribute this plugin, sell it, ||
+|| remove copyrights, or claim it as your own in any way. ||
+||========================================================================||
+\*************************************************************************/
 **/
 $l['mcc'] = 'Minecraft Connect';
 

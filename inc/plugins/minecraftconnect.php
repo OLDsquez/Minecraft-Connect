@@ -3,7 +3,7 @@
 ||========================================================================||
 || Minecraft Connect ||
 || Copyright 2016 ||
-|| Version 0.5.2 ||
+|| Version 0.6 ||
 || Made by fizz on the official MyBB board ||
 || http://community.mybb.com/user-36020.html ||
 || https://github.com/squez/Minecraft-Connect ||
@@ -15,7 +15,7 @@
 \*************************************************************************/
 
 // Disallow direct access to this file for security reasons
-if(!defined("IN_MYBB"))
+if(!defined('IN_MYBB'))
 {
     die('Not allowed.');
 }
@@ -29,7 +29,7 @@ function minecraftconnect_info()
         "website"       => "http://community.mybb.com/thread-188755.html", #CHANGE TO FORUM RELEASE THREAD URL
         "author"        => "fizz",
         "authorsite"    => "http://community.mybb.com/user-36020.html",
-        "version"       => "0.5.2", // 1.0 when register w/ minecraft is done?
+        "version"       => "0.6", // 1.0 when register w/ minecraft is done?
         "guid"          => "",
         "codename"      => "minecraftconnect",
         "compatibility" => "18*"
@@ -373,8 +373,8 @@ if($mybb->settings['mcc_enabled'])
     $plugins->add_hook('usercp_start', 'minecraftconnect_usercp');
 
     // Who's Online
-    $plugins->add_hook("fetch_wol_activity_end", "minecraftconnect_fetch_wol_activity");
-    $plugins->add_hook("build_friendly_wol_location_end", "minecraftconnect_build_wol_location");
+    $plugins->add_hook('fetch_wol_activity_end', 'minecraftconnect_fetch_wol_activity');
+    $plugins->add_hook('build_friendly_wol_location_end', 'minecraftconnect_build_wol_location');
 }
 
 // add mcc templates to templatelist on proper pages
@@ -414,7 +414,7 @@ function minecraftconnect_usercp_menu()
     global $mybb, $templates, $theme, $usercpmenu, $lang, $collapsed, $collapsedimg;
     
     if(!$lang->mcc)
-        $lang->load("minecraftconnect");
+        $lang->load('minecraftconnect');
     
     eval("\$usercpmenu .= \"" . $templates->get('mcc_usercp_menu') . "\";");
 }
@@ -425,7 +425,7 @@ function minecraftconnect_usercp()
     if(!$lang->mcc)
         $lang->load('minecraftconnect');
 
-    if($mybb->get_input('action') == 'minecraftconnect' && !isset($mybb->input['do']))
+    if($mybb->get_input('action') === 'minecraftconnect' && !isset($mybb->input['do']))
     {
         add_breadcrumb($lang->nav_usercp, 'usercp.php');
         add_breadcrumb($lang->mcc_usercp_title, 'usercp.php?action=minecraftconnect');
@@ -467,7 +467,7 @@ function minecraftconnect_usercp()
     }
 
     // Display link page content
-    if($mybb->get_input('action') == 'minecraftconnect' && $mybb->get_input('do') === 'link')
+    if($mybb->get_input('action') === 'minecraftconnect' && $mybb->get_input('do') === 'link')
     {
         // If user already has MC acc linked, redirect them to main MCC usercp page
         if(!empty($mybb->user['mcc_username']) OR isset($mybb->user['mcc_username']))
@@ -482,7 +482,7 @@ function minecraftconnect_usercp()
         {
             verify_post_check($mybb->get_input('my_post_key'));
             // do linking/unlinking shit
-            require('/MinecraftConnect/MCAuth.class.php');
+            require_once('/MinecraftConnect/MCAuth.class.php');
             $username = $db->escape_string(trim($mybb->get_input('mcusername')));
             $password = $db->escape_string($mybb->get_input('mcpassword'));
             $mc = new MCAuth($username);

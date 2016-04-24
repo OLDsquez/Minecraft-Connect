@@ -3,7 +3,7 @@
 ||========================================================================||
 || Minecraft Connect ||
 || Copyright 2016 ||
-|| Version 0.5.2 ||
+|| Version 0.6 ||
 || Made by fizz on the official MyBB board ||
 || http://community.mybb.com/user-36020.html ||
 || https://github.com/squez/Minecraft-Connect/ ||
@@ -14,16 +14,16 @@
 ||========================================================================||
 \*************************************************************************/
 
-define("IN_MYBB", 1);
+define('IN_MYBB', 1);
 define('THIS_SCRIPT', 'minecraftconnect.php');
 
 require_once("./global.php");
 
 if(!$lang->mcc)
-	$lang->load("minecraftconnect");
+	$lang->load('minecraftconnect');
 
 // Add link in breadcrumb
-add_breadcrumb($lang->mcc, "minecraftconnect.php");
+add_breadcrumb($lang->mcc, 'minecraftconnect.php');
 
 // Redirect user to board index if Minecraft Connect is disabled
 if($mybb->settings['mcc_enabled'] != 1)
@@ -43,7 +43,7 @@ $content = $lang->mcc_login_header;
 // Currently only function of this page is to authenticate a user
 // and log them into MyBB with their Minecraft credentials.
 // Possible registration with Minecraft in the future...
-if($mybb->get_input('act') == 'login')
+if($mybb->get_input('act') === 'login')
 {
 	$content = $lang->mcc_login_header;
 
@@ -51,7 +51,7 @@ if($mybb->get_input('act') == 'login')
 	{
 		verify_post_check($mybb->get_input('my_post_key'));
 
-		require('inc/plugins/MinecraftConnect/MCAuth.class.php');
+		require_once('inc/plugins/MinecraftConnect/MCAuth.class.php');
 
 		$username = $db->escape_string(trim($mybb->get_input('mccusername')));
 		$pass = $db->escape_string($mybb->get_input('mccpassword'));

@@ -19,7 +19,7 @@ class MCAuth {
     const AUTH_URL      = 'https://authserver.mojang.com/authenticate'; // Mojang authentication server URL
     const PROFILE_URL   = 'https://api.mojang.com/users/profiles/minecraft/';     // Profile page
     const HASPAID_URL   = 'https://www.minecraft.net/haspaid.jsp?user='; // Old but gold, check if user is premium
-    const USER_AGENT    = 'MinecraftConnect v0.5 (https://github.com/squez/)'; // User Agent used for requests
+    const USER_AGENT    = 'MinecraftConnect v0.6 (https://github.com/squez/)'; // User Agent used for requests
 
     public $autherr, $account = array();
     private $curlresp, $curlinfo, $curlerror;
