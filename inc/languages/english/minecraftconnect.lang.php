@@ -3,7 +3,7 @@
 ||========================================================================||
 || Minecraft Connect English Language File ||
 || Copyright 2016 ||
-|| Version 0.6 ||
+|| Version 0.6.1 ||
 || Made by fizz on the official MyBB board ||
 || http://community.mybb.com/user-36020.html ||
 || https://github.com/squez/Minecraft-Connect/ ||
@@ -13,7 +13,6 @@
 || remove copyrights, or claim it as your own in any way. ||
 ||========================================================================||
 \*************************************************************************/
-**/
 $l['mcc'] = 'Minecraft Connect';
 
 // UserCP
