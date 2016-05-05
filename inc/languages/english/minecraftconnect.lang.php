@@ -3,7 +3,7 @@
 ||========================================================================||
 || Minecraft Connect English Language File ||
 || Copyright 2016 ||
-|| Version 0.6.1 ||
+|| Version 0.7 ||
 || Made by fizz on the official MyBB board ||
 || http://community.mybb.com/user-36020.html ||
 || https://github.com/squez/Minecraft-Connect/ ||
@@ -14,6 +14,10 @@
 ||========================================================================||
 \*************************************************************************/
 $l['mcc'] = 'Minecraft Connect';
+$l['mcc_curl_disabled'] = 'cURL is disabled on your PHP installation. Please enable cURL to install Minecraft Connect.';
+$l['mcc_curl_https'] = 'cURL is not configured to use HTTPS properly.';
+$l['mcc_curl_ca'] = 'cURL is not set up with a proper Certificate Authority root certificate bundle.
+ Please view <a href="http://community.mybb.com/thread-188755.html" target="_NEW">THIS GUIDE</a> on how to add one so that you can install Minecraft Connect';
 
 // UserCP
 $l['mcc_usercpnav'] = 'Minecraft Connect'; // UserCP usercp nav list 
@@ -49,3 +53,6 @@ $l['mcc_login'] = 'Login with Minecraft';
 
 // WOL
 $l['mcc_viewing_login'] = 'Logging in with Minecraft Connect';
+
+// MCAuth
+$l['mcc_invalid_username'] = 'Invalid username.';

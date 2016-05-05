@@ -25,8 +25,6 @@ class MCAuth {
     private $curlresp, $curlinfo, $curlerror;
     private $clientToken = '', $usernameInput = '';
 
-    /////// TO DO: ADD MYBB LANG COMPATIBILITY?
-
     /**
     * Create new object and set $usernameInput.
     *
@@ -46,6 +44,8 @@ class MCAuth {
     */
     public function validateInput()
     {
+        global $lang;
+
         $username = $this->usernameInput;
         if(strlen($username) < 1)
         {
@@ -61,7 +61,7 @@ class MCAuth {
                 $this->setClientToken($check);
                 return true;
             }
-            $this->autherr = 'Invalid username.';
+            $this->autherr = $lang->mcc_invalid_username;
             return false;
         }
         else // $username is actually an email so we'll leave the client token blank
@@ -84,7 +84,7 @@ class MCAuth {
     }
 
     /**
-    * Retreive client token.
+    * Retrieve client token.
     *
     * @access public
     * @return string
@@ -94,6 +94,12 @@ class MCAuth {
         return $this->clientToken;
     }
 
+    /**
+    * Retrieve access token.
+    *
+    * @access public
+    * @return string
+    */
     public function getAccessToken()
     {
         return $this->account['token'];
@@ -268,9 +274,9 @@ class MCAuth {
             // Create a new session
             $db->update_query('sessions', array('uid'=>$user['uid']), "sid='{$session->sid}'");
             
-            // Set up the login cookies
-            my_setcookie("mybbuser", $user['uid'] . "_" . $user['loginkey'], null, true);
-            my_setcookie("sid", $session->sid, -1, true);
+            // Set login cookies
+            my_setcookie('mybbuser', $user['uid'] . '_' . $user['loginkey'], null, true);
+            my_setcookie('sid', $session->sid, -1, true);
             
             return true;
         }
@@ -342,6 +348,7 @@ class MCAuth {
     */
     public function getErr()
     {
-        return $this->autherr . 'client token: ##' . $this->clientToken .'##' . ' account token: @@' . $this->account['token'] . '@@';
+        #return $this->autherr . 'client token: ##' . $this->clientToken .'##' . ' account token: @@' . $this->account['token'] . '@@';
+        return $this->autherr;
     }
 }

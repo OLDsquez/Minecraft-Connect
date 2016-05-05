@@ -3,7 +3,7 @@
 ||========================================================================||
 || Minecraft Connect ||
 || Copyright 2016 ||
-|| Version 0.6.1 ||
+|| Version 0.7 ||
 || Made by fizz on the official MyBB board ||
 || http://community.mybb.com/user-36020.html ||
 || https://github.com/squez/Minecraft-Connect ||
@@ -29,7 +29,7 @@ function minecraftconnect_info()
         "website"       => "http://community.mybb.com/thread-188755.html", #CHANGE TO FORUM RELEASE THREAD URL
         "author"        => "fizz",
         "authorsite"    => "http://community.mybb.com/user-36020.html",
-        "version"       => "0.6.1", // 1.0 when register w/ minecraft is done?
+        "version"       => "0.7", // 1.0 when register w/ minecraft is done?
         "guid"          => "",
         "codename"      => "minecraftconnect",
         "compatibility" => "18*"
@@ -42,7 +42,35 @@ function minecraftconnect_install()
 
     if(!$lang->mcc)
         $lang->load('minecraftconnect');
-    
+
+    // Check if cURL is enabled before we do anything...
+    if(!function_exists('curl_version'))
+    {
+        flash_message($lang->mcc_curl_disabled, 'error');
+        admin_redirect('index.php?module=config-plugins');
+        exit;
+    }
+    else
+    {
+        // Now check if cURL can connect using HTTPS
+        $v = curl_version();
+        if(($v['features'] & CURL_VERSION_SSL) != 4)
+        {
+            flash_message($lang->mcc_curl_https, 'error');
+            admin_redirect('index.php?module=config-plugins');
+            exit;
+        }
+
+        // Now check if cURL Certificate Authority is valid
+        $cainfo = ini_get('curl.cainfo');
+        if(empty($cainfo) OR strlen($cainfo) < 4)
+        {
+            flash_message($lang->mcc_curl_ca, 'error');
+            admin_redirect('index.php?module=config-plugins');
+            exit;
+        }
+    }
+
     $mcc_group = array(
         'name'          => 'mcc',
         'title'         => 'Minecraft Connect',
@@ -86,7 +114,6 @@ function minecraftconnect_is_installed()
         return true;
     }
     return false;
-
 }
 
 function minecraftconnect_activate()
