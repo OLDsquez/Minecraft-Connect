@@ -52,11 +52,11 @@ function minecraftconnect_install()
     }
     else
     {
-        // Now check if cURL can connect using HTTPS
+        // Now check if cURL can connect using SSL
         $v = curl_version();
         if(($v['features'] & CURL_VERSION_SSL) != 4)
         {
-            flash_message($lang->mcc_curl_https, 'error');
+            flash_message($lang->mcc_curl_ssl, 'error');
             admin_redirect('index.php?module=config-plugins');
             exit;
         }

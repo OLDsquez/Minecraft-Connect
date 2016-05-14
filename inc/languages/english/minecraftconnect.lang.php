@@ -14,8 +14,10 @@
 ||========================================================================||
 \*************************************************************************/
 $l['mcc'] = 'Minecraft Connect';
+
+// Plugin Install
 $l['mcc_curl_disabled'] = 'cURL is disabled on your PHP installation. Please enable cURL to install Minecraft Connect.';
-$l['mcc_curl_https'] = 'cURL is not configured to use HTTPS properly.';
+$l['mcc_curl_ssl'] = 'cURL is not configured to use HTTPS properly.';
 $l['mcc_curl_ca'] = 'cURL is not set up with a proper Certificate Authority root certificate bundle.
  Please view <a href="http://community.mybb.com/thread-188755.html" target="_NEW">THIS GUIDE</a> on how to add one so that you can install Minecraft Connect';
 
