@@ -296,7 +296,7 @@ class MCAuth {
                 $response = json_decode($this->curlresp, true);
                 if (isset($response['id']) && isset($response['name'])) {
                     $this->account['id'] = $response['id'];
-                    $this->account['username'] = $response['username'];
+                    $this->account['username'] = $response['name'];
                     return true;
                 }
             }
