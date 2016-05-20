@@ -261,7 +261,7 @@ class MCAuth {
         if(!isset($username))
             $username = $this->getUsername();
 
-        $q = $db->simple_select('users', '*', "mcc_username = '$username'");
+        $q = $db->simple_select('users', 'uid,loginkey', "mcc_username = '$username'");
         if($db->num_rows($q) == 1)
         {
             $user = $db->fetch_array($q);
