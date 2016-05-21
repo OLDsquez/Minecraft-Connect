@@ -21,7 +21,8 @@ class MCAuth {
     const HASPAID_URL   = 'https://www.minecraft.net/haspaid.jsp?user='; // Old but gold, check if user is premium
     const USER_AGENT    = 'MinecraftConnect v0.7.1 (https://github.com/squez/Minecraft-Connect)'; // User Agent used for requests
 
-    public $autherr, $account = array();
+    public $autherr;
+    protected $account = array();
     private $curlresp, $curlinfo, $curlerror;
     private $clientToken = '', $usernameInput = '';
 
